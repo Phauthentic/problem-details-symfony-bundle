@@ -2,12 +2,12 @@ services:
   Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder:
     class: 'Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder'
 
-  Phauthentic\Symfony\ProblemDetails\ProblemDetailsResponseFactory:
-    class: 'Phauthentic\Symfony\ProblemDetails\ProblemDetailsResponseFactory'
+  Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory:
+    class: 'Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory'
 
   Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsToProblemDetailsKernelEventSubscriber:
     arguments:
       $validationErrorsBuilder: '@Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder'
-      $problemDetailsResponseFactory: '@Phauthentic\Symfony\ProblemDetails\ProblemDetailsResponseFactory'
+      $problemDetailsResponseFactory: '@Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory'
     tags:
       - { name: 'kernel.event_subscriber' }
