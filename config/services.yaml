@@ -1,0 +1,13 @@
+services:
+  Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder:
+    class: 'Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder'
+
+  Phauthentic\Symfony\ProblemDetails\ProblemDetailsResponseFactory:
+    class: 'Phauthentic\Symfony\ProblemDetails\ProblemDetailsResponseFactory'
+
+  Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsToProblemDetailsKernelEventSubscriber:
+    arguments:
+      $validationErrorsBuilder: '@Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder'
+      $problemDetailsResponseFactory: '@Phauthentic\Symfony\ProblemDetails\ProblemDetailsResponseFactory'
+    tags:
+      - { name: 'kernel.event_subscriber' }
