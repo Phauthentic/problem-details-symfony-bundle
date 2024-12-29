@@ -65,10 +65,10 @@ jobs:
         run: composer update --prefer-lowest --prefer-stable
 
       - name: Run phpcs
-        run: bin/phpcs --version && bin/phpcs --report=source --standard=phpcs.xml
+        run: composer csfix
 
       - name: Run phpstan
-        run: bin/phpstan -V && bin/phpstan --error-format=.github
+        run: composer analyze
 
       - name: Run phpmd
-        run: bin/phpmd --version && composer phpmd
+        run: composer phpmd
