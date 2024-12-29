@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.2', '8.3']
+        php-version: ['8.2', '8.3', '8.4']
 
     steps:
       - uses: actions/checkout@v4
@@ -65,7 +65,7 @@ jobs:
         run: composer update --prefer-lowest --prefer-stable
 
       - name: Run phpcs
-        run: composer csfix
+        run: composer cscheck
 
       - name: Run phpstan
         run: composer analyze
