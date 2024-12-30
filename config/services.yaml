@@ -2,7 +2,7 @@ services:
   Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder:
     class: 'Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder'
 
-  Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory:
+  Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactoryInterface:
     class: 'Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory'
 
   Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsToProblemDetailsKernelEventSubscriber:
