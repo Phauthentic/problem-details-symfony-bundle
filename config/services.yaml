@@ -5,6 +5,9 @@ services:
   Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactoryInterface:
     class: 'Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory'
 
+  Phauthentic\Symfony\ProblemDetails\FromExceptionEventFactoryInterface:
+    class: 'Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory'
+
   Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsToProblemDetailsKernelEventSubscriber:
     arguments:
       $validationErrorsBuilder: '@Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder'
