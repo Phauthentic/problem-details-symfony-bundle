@@ -11,6 +11,6 @@ services:
   Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsToProblemDetailsKernelEventSubscriber:
     arguments:
       $validationErrorsBuilder: '@Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder'
-      $problemDetailsResponseFactory: '@Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory'
+      $problemDetailsResponseFactory: '@Phauthentic\Symfony\ProblemDetails\FromExceptionEventFactoryInterface'
     tags:
       - { name: 'kernel.event_subscriber' }
