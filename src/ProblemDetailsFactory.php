@@ -22,8 +22,13 @@ readonly class ProblemDetailsFactory implements
      * @inheritDoc
      * @SuppressWarnings(StaticAccess)
      */
-    public function createResponse(string $type, string $title, int $status, string $instance, array $errors = []): Response
-    {
+    public function createResponse(
+        string $type = 'about:blank',
+        string $title = null,
+        int $status = null,
+        string $instance = null,
+        array $errors = []
+    ): Response {
         return ProblemDetailsResponse::create(
             status: $status,
             type: $type,
