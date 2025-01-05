@@ -1,0 +1,73 @@
+{
+    "name": "phauthentic/problem-details-symfony-bundle",
+    "type": "library",
+    "description": "Symfony bundle for the Problem Details for HTTP APIs RFC",
+    "require": {
+        "php": "^8.2"
+    },
+    "require-dev": {
+        "infection/infection": "^0.29.10",
+        "phpmd/phpmd": "^2.5",
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^11.5.0",
+        "squizlabs/php_codesniffer": "^3.7.2",
+        "symfony/http-kernel": "~7.0",
+        "symfony/serializer": "~7.0",
+        "symfony/uid": "~7.0",
+        "symfony/validator": "~7.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Phauthentic\\Symfony\\ProblemDetails\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Phauthentic\\Symfony\\ProblemDetails\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "bin-dir": "bin",
+        "sort-packages": true,
+        "allow-plugins": {
+            "infection/extension-installer": true
+        }
+    },
+    "scripts": {
+        "test": [
+            "phpunit"
+        ],
+        "infection": [
+            "infection"
+        ],
+        "test-coverage": [
+            "phpunit --coverage-text"
+        ],
+        "test-coverage-html": [
+            "phpunit --coverage-html tmp/coverage/"
+        ],
+        "cscheck": [
+            "phpcs src/ tests/ -s --standard=phpcs.xml"
+        ],
+        "csfix": [
+            "phpcbf src/ tests/"
+        ],
+        "analyze": [
+            "phpstan analyse src/"
+        ],
+        "analyse": [
+            "phpstan analyse src/"
+        ],
+        "phpmd": [
+            "bin/phpmd ./src/ text phpmd.xml"
+        ],
+        "all": [
+            "@csfix",
+            "@cscheck",
+            "@analyze",
+            "@phpmd",
+            "@test"
+        ]
+    }
+}
