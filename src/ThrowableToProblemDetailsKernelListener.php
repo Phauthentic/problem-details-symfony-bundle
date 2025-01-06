@@ -32,7 +32,7 @@ class ThrowableToProblemDetailsKernelListener
         protected array $exceptionConverters = []
     ) {
         if (empty($this->exceptionConverters)) {
-            throw new InvalidArgumentException('No exception converter passed!');
+            throw new InvalidArgumentException('At least one converter must be provided');
         }
     }
 
@@ -49,6 +49,10 @@ class ThrowableToProblemDetailsKernelListener
     {
         $throwable = $event->getThrowable();
         foreach ($this->exceptionConverters as $exceptionConverter) {
+            if (!$exceptionConverter instanceof ExceptionConverterInterface) {
+                throw new InvalidArgumentException('All converters must implement ' . ExceptionConverterInterface::class);
+            }
+
             if (!$exceptionConverter->canHandle($throwable)) {
                 continue;
             }

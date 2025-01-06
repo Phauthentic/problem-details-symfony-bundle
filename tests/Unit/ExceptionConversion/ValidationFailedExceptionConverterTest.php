@@ -11,8 +11,11 @@ use Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory;
 use Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -101,5 +104,23 @@ class ValidationFailedExceptionConverterTest extends TestCase
         $violation2->method('getMessage')->willReturn('This street is invalid.');
 
         return new ConstraintViolationList([$violation1, $violation2]);
+    }
+
+    #[Test]
+    public function testExtractValidationFailedExceptionThrowsRuntimeException(): void
+    {
+        // Arrange
+        $exception = new UnprocessableEntityHttpException('Validation failed', new Exception(), 0, []);
+        $kernel = $this->createMock(HttpKernelInterface::class);
+        $request = new Request([], [], [], [], [], ['REQUEST_URI' => '/profile/1']);
+        $request->headers->add(['Accept' => 'application/json']);
+        $event = new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $exception);
+
+        // Assert
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('ValidationFailedException not found');
+
+        // Act
+        $this->converter->convertExceptionToErrorDetails($exception, $event);
     }
 }

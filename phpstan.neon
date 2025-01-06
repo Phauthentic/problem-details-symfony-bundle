@@ -4,3 +4,4 @@ parameters:
         - src
     parallel:
         maximumNumberOfProcesses: 4
+    treatPhpDocTypesAsCertain: false

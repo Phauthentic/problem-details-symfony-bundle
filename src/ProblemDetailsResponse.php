@@ -53,7 +53,7 @@ class ProblemDetailsResponse extends JsonResponse
         ];
 
         if (!empty($detail)) {
-            $data['detail'] = $instance;
+            $data['detail'] = $detail;
         }
 
         if (!empty($instance)) {
@@ -87,12 +87,8 @@ class ProblemDetailsResponse extends JsonResponse
     /**
      * Validates if the given status code is a valid client-side (4xx) or server-side (5xx) error.
      */
-    protected static function assertValidStatusCode(?int $statusCode): void
+    protected static function assertValidStatusCode(int $statusCode): void
     {
-        if (!$statusCode) {
-            return;
-        }
-
         if (!($statusCode >= 400 && $statusCode < 500) && !($statusCode >= 500 && $statusCode < 600)) {
             throw new LogicException(sprintf(
                 'Invalid status code %s provided for a Problem Details response. '

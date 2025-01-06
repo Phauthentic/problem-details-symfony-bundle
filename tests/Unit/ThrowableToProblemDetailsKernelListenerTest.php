@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phauthentic\Symfony\ProblemDetails\Tests\Unit;
 
 use Exception;
+use InvalidArgumentException;
 use Phauthentic\Symfony\ProblemDetails\ExceptionConversion\GenericThrowableConverter;
 use Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -64,5 +65,34 @@ class ThrowableToProblemDetailsKernelListenerTest extends TestCase
         } else {
             $this->assertArrayNotHasKey('trace', $data);
         }
+    }
+
+    #[Test]
+    public function testInstantiationWithoutConverters(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('At least one converter must be provided');
+
+        new ThrowableToProblemDetailsKernelListener([]);
+    }
+
+    #[Test]
+    public function testInstantiationWithoutValidConverter(): void
+    {
+        // Arrange
+        $throwable = new Exception('Unmapped exception');
+        $kernel = $this->createMock(HttpKernelInterface::class);
+        $request = new Request(
+            server: ['HTTP_ACCEPT' => 'application/json']
+        );
+        $event = new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $throwable);
+
+        // Expect
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('All converters must implement Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ExceptionConverterInterface');
+
+        // Act
+        $listener = new ThrowableToProblemDetailsKernelListener([new \stdClass()]);
+        $listener->onKernelException($event);
     }
 }
