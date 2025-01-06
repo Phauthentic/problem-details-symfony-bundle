@@ -27,10 +27,12 @@ use Throwable;
 class ThrowableToProblemDetailsKernelListener
 {
     /**
+     * @param ProblemDetailsFactoryInterface $problemDetailsFactory
      * @param string $environment
      * @param array<callable> $mappers
      */
     public function __construct(
+        protected ProblemDetailsFactoryInterface $problemDetailsFactory,
         protected string $environment = 'prod',
         protected array $mappers = []
     ) {
@@ -38,6 +40,10 @@ class ThrowableToProblemDetailsKernelListener
 
     public function onKernelException(ExceptionEvent $event): void
     {
+        if ($this->isNotAJsonRequest($event)) {
+            return;
+        }
+
         $throwable = $event->getThrowable();
 
         $class = get_class($throwable);
@@ -53,24 +59,22 @@ class ThrowableToProblemDetailsKernelListener
         $event->setResponse($this->buildResponse($throwable));
     }
 
-    private function buildResponse(Throwable $throwable): JsonResponse
+    private function isNotAJsonRequest(ExceptionEvent $event): bool
     {
-        $data = [
-            'type' => 'about:blank',
-            'title' => $throwable->getMessage(),
-            'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
-        ];
+        return $event->getRequest()->getPreferredFormat() !== 'json';
+    }
 
-        if ($this->environment === 'dev') {
-            $data['trace'] = $throwable->getTrace();
+    private function buildResponse(Throwable $throwable): Response
+    {
+        $extensions = [];
+        if ($this->environment === 'dev' || $this->environment === 'test') {
+            $extensions['trace'] = $throwable->getTrace();
         }
 
-        return new JsonResponse(
-            data: $data,
+        return $this->problemDetailsFactory->createResponse(
             status: Response::HTTP_INTERNAL_SERVER_ERROR,
-            headers: [
-                'Content-Type' => 'application/problem+json',
-            ]
+            title: $throwable->getMessage(),
+            extensions: $extensions
         );
     }
 }

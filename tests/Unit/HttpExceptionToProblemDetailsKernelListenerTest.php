@@ -23,7 +23,9 @@ class HttpExceptionToProblemDetailsKernelListenerTest extends TestCase
         // Arrange
         $exception = new HttpException(404, 'Not Found');
         $kernel = $this->createMock(HttpKernelInterface::class);
-        $request = new Request();
+        $request = new Request(
+            server: ['HTTP_ACCEPT' => 'application/json']
+        );
         $event = new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $exception);
         $listener = new HttpExceptionToProblemDetailsKernelListener();
 
@@ -49,7 +51,9 @@ class HttpExceptionToProblemDetailsKernelListenerTest extends TestCase
         // Arrange
         $exception = new Exception('Some other exception');
         $kernel = $this->createMock(HttpKernelInterface::class);
-        $request = new Request();
+        $request = new Request(
+            server: ['HTTP_ACCEPT' => 'application/json']
+        );
         $event = new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $exception);
         $listener = new HttpExceptionToProblemDetailsKernelListener();
 

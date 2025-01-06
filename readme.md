@@ -62,6 +62,6 @@ Content-Language: en
 
 ## License
 
-This bundle is under the MIT license.
+This bundle is under the [MIT license](LICENSE).
 
 Copyright Florian Krämer

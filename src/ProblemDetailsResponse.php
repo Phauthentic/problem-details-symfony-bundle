@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phauthentic\Symfony\ProblemDetails;
 
+use InvalidArgumentException;
 use LogicException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -13,7 +14,17 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class ProblemDetailsResponse extends JsonResponse
 {
     protected static string $contentType = 'application/problem+json';
-    protected static string $errorsField = 'errors';
+
+    /**
+     * @var array<string>
+     */
+    protected static array $problemDetailsProtectedFields = [
+        'status',
+        'type',
+        'title',
+        'detail',
+        'instance',
+    ];
 
     /**
      * @param int $status
@@ -21,7 +32,7 @@ class ProblemDetailsResponse extends JsonResponse
      * @param string|null $title
      * @param string|null $detail
      * @param string|null $instance
-     * @param array<int, array<string, mixed>> $errors
+     * @param array<string, mixed> $extensions
      * @return self
      */
     public static function create(
@@ -30,9 +41,10 @@ class ProblemDetailsResponse extends JsonResponse
         ?string $title = null,
         ?string $detail = null,
         ?string $instance = null,
-        array $errors = []
+        array $extensions = []
     ): self {
         self::assertValidstatusCode($status);
+        self::assertReservedResponseFields($extensions);
 
         $data = [
             'status' => $status,
@@ -48,17 +60,28 @@ class ProblemDetailsResponse extends JsonResponse
             $data['instance'] = $instance;
         }
 
-        if (!empty($errors)) {
-            $data[self::$errorsField] = $errors;
-        }
-
         return new self(
-            $data,
+            array_merge($data, $extensions),
             $status,
             [
                 'Content-Type' => self::$contentType
             ]
         );
+    }
+
+    /**
+     * @param array<string, mixed> $extensions
+     */
+    public static function assertReservedResponseFields(array $extensions): void
+    {
+        foreach (array_keys($extensions) as $key) {
+            if (in_array($key, self::$problemDetailsProtectedFields, true)) {
+                throw new InvalidArgumentException(sprintf(
+                    'The key "%s" is a reserved key and cannot be used as an extension.',
+                    $key
+                ));
+            }
+        }
     }
 
     /**

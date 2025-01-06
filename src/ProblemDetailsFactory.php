@@ -7,12 +7,16 @@ namespace Phauthentic\Symfony\ProblemDetails;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent as KernelExceptionEvent;
 
+/**
+ *
+ */
 readonly class ProblemDetailsFactory implements ProblemDetailsFactoryInterface, FromExceptionEventFactoryInterface
 {
     public function __construct(
-        private string $type = 'about:blank',
-        private string $title = 'Validation Failed',
-        private int $status = Response::HTTP_UNPROCESSABLE_ENTITY,
+        private string $defaultType = 'about:blank',
+        private string $defaultTitle = 'Validation Failed',
+        private int $defaultStatus = Response::HTTP_UNPROCESSABLE_ENTITY,
+        private string $errorField = 'errors'
     ) {
     }
 
@@ -25,14 +29,14 @@ readonly class ProblemDetailsFactory implements ProblemDetailsFactoryInterface, 
         string $type = 'about:blank',
         ?string $title = null,
         ?string $instance = null,
-        array $errors = []
+        array $extensions = []
     ): Response {
         return ProblemDetailsResponse::create(
             status: $status,
             type: $type,
             title: $title,
             instance: $instance,
-            errors: $errors
+            extensions: $extensions
         );
     }
 
@@ -45,11 +49,13 @@ readonly class ProblemDetailsFactory implements ProblemDetailsFactoryInterface, 
     public function createResponseFromKernelExceptionEvent(KernelExceptionEvent $event, array $errors): Response
     {
         return ProblemDetailsResponse::create(
-            status: $this->status,
-            type: $this->type,
-            title: $this->title,
+            status: $this->defaultStatus,
+            type: $this->defaultType,
+            title: $this->defaultTitle,
             instance: $event->getRequest()->getRequestUri(),
-            errors: $errors
+            extensions: [
+                $this->errorField => $errors,
+            ]
         );
     }
 }
