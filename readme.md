@@ -59,6 +59,7 @@ Content-Language: en
           ]
 }
 ```
+
 ## Alternatives
 
 If you favor a different style of implementation check out the following bundles:
