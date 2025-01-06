@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phauthentic\Symfony\ProblemDetails\Tests\Unit;
 
 use Exception;
+use Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory;
 use PHPUnit\Framework\TestCase;
 use Phauthentic\Symfony\ProblemDetails\HttpExceptionToProblemDetailsKernelListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,7 +28,9 @@ class HttpExceptionToProblemDetailsKernelListenerTest extends TestCase
             server: ['HTTP_ACCEPT' => 'application/json']
         );
         $event = new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $exception);
-        $listener = new HttpExceptionToProblemDetailsKernelListener();
+        $listener = new HttpExceptionToProblemDetailsKernelListener(
+            new ProblemDetailsFactory()
+        );
 
         // Act
         $listener->onKernelException($event);
@@ -55,7 +58,9 @@ class HttpExceptionToProblemDetailsKernelListenerTest extends TestCase
             server: ['HTTP_ACCEPT' => 'application/json']
         );
         $event = new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $exception);
-        $listener = new HttpExceptionToProblemDetailsKernelListener();
+        $listener = new HttpExceptionToProblemDetailsKernelListener(
+            new ProblemDetailsFactory()
+        );
 
         // Act
         $listener->onKernelException($event);

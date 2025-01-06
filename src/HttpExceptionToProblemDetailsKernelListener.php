@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phauthentic\Symfony\ProblemDetails;
 
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
@@ -26,6 +26,11 @@ use Throwable;
  */
 class HttpExceptionToProblemDetailsKernelListener
 {
+    public function __construct(
+        protected ProblemDetailsFactoryInterface $problemDetailsFactory
+    ) {
+    }
+
     public function onKernelException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
@@ -41,18 +46,12 @@ class HttpExceptionToProblemDetailsKernelListener
         return $exception instanceof HttpException;
     }
 
-    private function buildResponse(HttpException $httpException): JsonResponse
+    private function buildResponse(HttpException $httpException): Response
     {
-        return new JsonResponse(
-            data: [
-                'type' => 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/' . $httpException->getStatusCode(),
-                'title' => $httpException->getMessage(),
-                'status' => $httpException->getStatusCode(),
-            ],
+        return $this->problemDetailsFactory->createResponse(
             status: $httpException->getStatusCode(),
-            headers: [
-                'Content-Type' => 'application/problem+json',
-            ]
+            type: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/' . $httpException->getStatusCode(),
+            title: $httpException->getMessage()
         );
     }
 }
