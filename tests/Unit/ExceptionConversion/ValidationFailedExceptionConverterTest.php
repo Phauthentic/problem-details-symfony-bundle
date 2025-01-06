@@ -2,37 +2,48 @@
 
 declare(strict_types=1);
 
-namespace Phauthentic\Symfony\ProblemDetails\Tests\Unit;
+namespace Phauthentic\Symfony\ProblemDetails\Tests\Unit\ExceptionConversion;
 
-use JsonException;
+use Exception;
+use Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ValidationFailedExceptionConverter;
+use Phauthentic\Symfony\ProblemDetails\FromExceptionEventFactoryInterface;
 use Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory;
 use Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder;
-use Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsToProblemDetailsKernelEventSubscriber;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Validator\Exception\ValidationFailedException;
-use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
 
-class ValidationErrorsToProblemDetailsKernelEventSubscriberTest extends TestCase
+/**
+ *
+ */
+class ValidationFailedExceptionConverterTest extends TestCase
 {
-    /**
-     * @throws Exception
-     * @throws JsonException
-     */
+    protected ValidationFailedExceptionConverter $converter;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->converter = new ValidationFailedExceptionConverter(
+            validationErrorsBuilder: new ValidationErrorsBuilder(),
+            problemDetailsResponseFactory: new ProblemDetailsFactory()
+        );
+    }
+
     #[Test]
-    public function testOnException(): void
+    public function testConvertExceptionToErrorDetails(): void
     {
         // Arrange
         $violations = $this->getConstraintViolationList();
         $exception = new ValidationFailedException('Validation failed', $violations);
-
-        $listener = $this->getErrorsToProblemDetailsKernelEventSubscriber();
 
         $kernel = $this->createMock(HttpKernelInterface::class);
         $request = new Request([], [], [], [], [], ['REQUEST_URI' => '/profile/1']);
@@ -41,10 +52,9 @@ class ValidationErrorsToProblemDetailsKernelEventSubscriberTest extends TestCase
         $event = new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $exception);
 
         // Act
-        $listener->onException($event);
+        $response = $this->converter->convertExceptionToErrorDetails($exception, $event);
 
         // Assert
-        $response = $event->getResponse();
         $this->assertNotNull($response);
         $this->assertEquals(422, $response->getStatusCode());
         $this->assertJsonStringEqualsJsonString(
@@ -68,10 +78,21 @@ class ValidationErrorsToProblemDetailsKernelEventSubscriberTest extends TestCase
         );
     }
 
-    /**
-     * @return ConstraintViolationList
-     * @throws Exception
-     */
+    #[Test]
+    public function testCanHandle(): void
+    {
+        $this->assertFalse($this->converter->canHandle(
+            new Exception('Some other exception')
+        ));
+
+        $this->assertTrue($this->converter->canHandle(
+            new ValidationFailedException(
+                'Validation failed',
+                $this->getConstraintViolationList()
+            )
+        ));
+    }
+
     private function getConstraintViolationList(): ConstraintViolationList
     {
         $violation1 = $this->createMock(ConstraintViolation::class);
@@ -86,45 +107,20 @@ class ValidationErrorsToProblemDetailsKernelEventSubscriberTest extends TestCase
     }
 
     #[Test]
-    public function testGetSubscribedEvents(): void
-    {
-        $events = ValidationErrorsToProblemDetailsKernelEventSubscriber::getSubscribedEvents();
-
-        $this->assertEquals([KernelEvents::EXCEPTION => 'onException'], $events);
-    }
-
-    #[Test]
-    public function testOnExceptionNotValidationFailedException(): void
+    public function testExtractValidationFailedExceptionThrowsRuntimeException(): void
     {
         // Arrange
-        $exception = new \Exception('Some other exception');
-
-        $listener = $this->getErrorsToProblemDetailsKernelEventSubscriber();
-
+        $exception = new UnprocessableEntityHttpException('Validation failed', new Exception(), 0, []);
         $kernel = $this->createMock(HttpKernelInterface::class);
         $request = new Request([], [], [], [], [], ['REQUEST_URI' => '/profile/1']);
         $request->headers->add(['Accept' => 'application/json']);
         $event = new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $exception);
 
-        // Act
-        $listener->onException($event);
-
         // Assert
-        $response = $event->getResponse();
-        $this->assertNull($response);
-    }
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('ValidationFailedException not found');
 
-    /**
-     * @return ValidationErrorsToProblemDetailsKernelEventSubscriber
-     */
-    public function getErrorsToProblemDetailsKernelEventSubscriber(): ValidationErrorsToProblemDetailsKernelEventSubscriber
-    {
-        $validationErrorsBuilder = new ValidationErrorsBuilder();
-        $problemDetailsResponseFactory = new ProblemDetailsFactory();
-
-        return new ValidationErrorsToProblemDetailsKernelEventSubscriber(
-            $validationErrorsBuilder,
-            $problemDetailsResponseFactory
-        );
+        // Act
+        $this->converter->convertExceptionToErrorDetails($exception, $event);
     }
 }

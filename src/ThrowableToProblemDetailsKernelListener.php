@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Phauthentic\Symfony\ProblemDetails;
 
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
+use InvalidArgumentException;
+use Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ExceptionConverterInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Throwable;
 
 /**
  * Handles Thowable and converts it into a Problem Details HTTP response.
  *
- * Notice that you might need to adjust the priority of the listener in your services.yaml file to make sure it is
+ * Notice that you might need to adjust the priority of the converters in your services.yaml file to make sure it is
  * executed in the right order if you have other listeners.
  *
  * <code>
@@ -27,50 +26,46 @@ use Throwable;
 class ThrowableToProblemDetailsKernelListener
 {
     /**
-     * @param string $environment
-     * @param array<callable> $mappers
+     * @param array<ExceptionConverterInterface> $exceptionConverters
      */
     public function __construct(
-        protected string $environment = 'prod',
-        protected array $mappers = []
+        protected array $exceptionConverters = []
     ) {
+        if (empty($this->exceptionConverters)) {
+            throw new InvalidArgumentException('At least one converter must be provided');
+        }
     }
 
     public function onKernelException(ExceptionEvent $event): void
     {
+        if ($this->isNotAJsonRequest($event)) {
+            return;
+        }
+
+        $this->processConverters($event);
+    }
+
+    private function processConverters(ExceptionEvent $event): void
+    {
         $throwable = $event->getThrowable();
+        foreach ($this->exceptionConverters as $exceptionConverter) {
+            if (!$exceptionConverter instanceof ExceptionConverterInterface) {
+                throw new InvalidArgumentException('All converters must implement ' . ExceptionConverterInterface::class);
+            }
 
-        $class = get_class($throwable);
-        if (isset($this->mappers[$class])) {
-            $mapper = $this->mappers[$class];
-            $response = $mapper($throwable);
+            if (!$exceptionConverter->canHandle($throwable)) {
+                continue;
+            }
 
+            $response = $exceptionConverter->convertExceptionToErrorDetails($throwable, $event);
             $event->setResponse($response);
 
             return;
         }
-
-        $event->setResponse($this->buildResponse($throwable));
     }
 
-    private function buildResponse(Throwable $throwable): JsonResponse
+    private function isNotAJsonRequest(ExceptionEvent $event): bool
     {
-        $data = [
-            'type' => 'about:blank',
-            'title' => $throwable->getMessage(),
-            'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
-        ];
-
-        if ($this->environment === 'dev') {
-            $data['trace'] = $throwable->getTrace();
-        }
-
-        return new JsonResponse(
-            data: $data,
-            status: Response::HTTP_INTERNAL_SERVER_ERROR,
-            headers: [
-                'Content-Type' => 'application/problem+json',
-            ]
-        );
+        return $event->getRequest()->getPreferredFormat() !== 'json';
     }
 }

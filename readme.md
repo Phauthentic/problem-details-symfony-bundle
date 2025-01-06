@@ -17,11 +17,9 @@ composer require phauthentic/problem-details-symfony-bundle
 ```php
 class ExampleController
 {
-    private ProblemDetailsFactoryInterface $problemDetailsFactory;
-
-    public function __construct(ProblemDetailsFactoryInterface $problemDetailsFactory)
-    {
-        $this->problemDetailsFactory = $problemDetailsFactory;
+    public function __construct(
+        private ProblemDetailsFactoryInterface $problemDetailsFactory
+    ) {
     }
 
     /**
@@ -33,8 +31,10 @@ class ExampleController
             type: 'https://example.net/validation-error',
             detail: 'Your request is not valid.',
             status: 422,
+            title: 'Validation Error',
         );
     }
+}
 ```
 
 ## Problem Details Example
@@ -59,9 +59,14 @@ Content-Language: en
           ]
 }
 ```
+## Alternatives
+
+If you favor a different style of implementation check out the following bundles:
+
+* [phpro/api-problem-bundle](https://github.com/phpro/api-problem-bundle)
 
 ## License
 
-This bundle is under the MIT license.
+This bundle is under the [MIT license](LICENSE).
 
 Copyright Florian Krämer
