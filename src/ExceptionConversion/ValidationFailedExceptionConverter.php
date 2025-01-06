@@ -9,7 +9,6 @@ use Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Throwable;
@@ -52,8 +51,9 @@ class ValidationFailedExceptionConverter implements ExceptionConverterInterface
     {
         $throwable = $this->extractValidationFailedException($throwable);
 
-        $errors = $this->validationErrorsBuilder->buildErrors($throwable);
-
-        return $this->problemDetailsResponseFactory->createResponseFromKernelExceptionEvent($event, $errors);
+        return $this->problemDetailsResponseFactory->createResponseFromKernelExceptionEvent(
+            $event,
+            $this->validationErrorsBuilder->buildErrors($throwable)
+        );
     }
 }

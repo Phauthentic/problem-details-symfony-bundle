@@ -12,7 +12,31 @@ This bundle provides support for [RFC 9457](https://www.rfc-editor.org/rfc/rfc94
 composer require phauthentic/problem-details-symfony-bundle
 ```
 
-## Docs
+## Problem Details Example
+
+```text
+HTTP/1.1 422 Unprocessable Content
+Content-Type: application/problem+json
+Content-Language: en
+
+{
+ "type": "https://example.net/validation-error",
+ "title": "Your request is not valid.",
+ "errors": [
+             {
+               "detail": "must be a positive integer",
+               "pointer": "#/age"
+             },
+             {
+               "detail": "must be 'green', 'red' or 'blue'",
+               "pointer": "#/profile/color"
+             }
+          ]
+}
+```
+
+
+## Documentation
 
 ```php
 class ExampleController
@@ -37,28 +61,8 @@ class ExampleController
 }
 ```
 
-## Problem Details Example
 
-```text
-HTTP/1.1 422 Unprocessable Content
-Content-Type: application/problem+json
-Content-Language: en
 
-{
- "type": "https://example.net/validation-error",
- "title": "Your request is not valid.",
- "errors": [
-             {
-               "detail": "must be a positive integer",
-               "pointer": "#/age"
-             },
-             {
-               "detail": "must be 'green', 'red' or 'blue'",
-               "pointer": "#/profile/color"
-             }
-          ]
-}
-```
 ## Alternatives
 
 If you favor a different style of implementation check out the following bundles:

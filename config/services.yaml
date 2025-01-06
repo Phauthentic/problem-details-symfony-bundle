@@ -8,9 +8,20 @@ services:
   Phauthentic\Symfony\ProblemDetails\FromExceptionEventFactoryInterface:
     class: 'Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory'
 
-  Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsToProblemDetailsKernelEventSubscriber:
+  Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ValidationFailedExceptionConverter:
     arguments:
       $validationErrorsBuilder: '@Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder'
       $problemDetailsResponseFactory: '@Phauthentic\Symfony\ProblemDetails\FromExceptionEventFactoryInterface'
+
+  Phauthentic\Symfony\ProblemDetails\ExceptionConversion\HttpExceptionConverter:
+    arguments:
+      $problemDetailsFactory: '@Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactoryInterface'
+
+  Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ThrowableToProblemDetailsKernelListener:
+    arguments:
+      $exceptionConverters:
+        - '@Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ValidationFailedExceptionConverter'
+        - '@Phauthentic\Symfony\ProblemDetails\ExceptionConversion\HttpExceptionConverter'
+        - '@Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ThrowableToProblemDetailsKernelListener'
     tags:
-      - { name: 'kernel.event_subscriber' }
+      - { name: 'kernel.event_listener', event: 'kernel.exception', priority: 0 }
