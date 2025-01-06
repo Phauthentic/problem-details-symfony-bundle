@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Phauthentic\Symfony\ProblemDetails;
 
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
+use InvalidArgumentException;
+use Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ExceptionConverterInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Throwable;
 
 /**
  * Handles Thowable and converts it into a Problem Details HTTP response.
  *
- * Notice that you might need to adjust the priority of the listener in your services.yaml file to make sure it is
+ * Notice that you might need to adjust the priority of the converters in your services.yaml file to make sure it is
  * executed in the right order if you have other listeners.
  *
  * <code>
@@ -27,15 +26,14 @@ use Throwable;
 class ThrowableToProblemDetailsKernelListener
 {
     /**
-     * @param ProblemDetailsFactoryInterface $problemDetailsFactory
-     * @param string $environment
-     * @param array<callable> $mappers
+     * @param array<ExceptionConverterInterface> $exceptionConverters
      */
     public function __construct(
-        protected ProblemDetailsFactoryInterface $problemDetailsFactory,
-        protected string $environment = 'prod',
-        protected array $mappers = []
+        protected array $exceptionConverters = []
     ) {
+        if (empty($this->exceptionConverters)) {
+            throw new InvalidArgumentException('No exception converter passed!');
+        }
     }
 
     public function onKernelException(ExceptionEvent $event): void
@@ -44,37 +42,26 @@ class ThrowableToProblemDetailsKernelListener
             return;
         }
 
+        $this->processConverters($event);
+    }
+
+    private function processConverters(ExceptionEvent $event): void
+    {
         $throwable = $event->getThrowable();
+        foreach ($this->exceptionConverters as $exceptionConverter) {
+            if (!$exceptionConverter->canHandle($throwable)) {
+                continue;
+            }
 
-        $class = get_class($throwable);
-        if (isset($this->mappers[$class])) {
-            $mapper = $this->mappers[$class];
-            $response = $mapper($throwable);
-
+            $response = $exceptionConverter->convertExceptionToErrorDetails($throwable, $event);
             $event->setResponse($response);
 
             return;
         }
-
-        $event->setResponse($this->buildResponse($throwable));
     }
 
     private function isNotAJsonRequest(ExceptionEvent $event): bool
     {
         return $event->getRequest()->getPreferredFormat() !== 'json';
-    }
-
-    private function buildResponse(Throwable $throwable): Response
-    {
-        $extensions = [];
-        if ($this->environment === 'dev' || $this->environment === 'test') {
-            $extensions['trace'] = $throwable->getTrace();
-        }
-
-        return $this->problemDetailsFactory->createResponse(
-            status: Response::HTTP_INTERNAL_SERVER_ERROR,
-            title: $throwable->getMessage(),
-            extensions: $extensions
-        );
     }
 }

@@ -17,11 +17,9 @@ composer require phauthentic/problem-details-symfony-bundle
 ```php
 class ExampleController
 {
-    private ProblemDetailsFactoryInterface $problemDetailsFactory;
-
-    public function __construct(ProblemDetailsFactoryInterface $problemDetailsFactory)
-    {
-        $this->problemDetailsFactory = $problemDetailsFactory;
+    public function __construct(
+        private ProblemDetailsFactoryInterface $problemDetailsFactory
+    ) {
     }
 
     /**
@@ -33,8 +31,10 @@ class ExampleController
             type: 'https://example.net/validation-error',
             detail: 'Your request is not valid.',
             status: 422,
+            title: 'Validation Error',
         );
     }
+}
 ```
 
 ## Problem Details Example

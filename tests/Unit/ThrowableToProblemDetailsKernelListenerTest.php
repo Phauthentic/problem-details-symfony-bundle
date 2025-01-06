@@ -5,17 +5,16 @@ declare(strict_types=1);
 namespace Phauthentic\Symfony\ProblemDetails\Tests\Unit;
 
 use Exception;
+use Phauthentic\Symfony\ProblemDetails\ExceptionConversion\GenericThrowableConverter;
 use Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Phauthentic\Symfony\ProblemDetails\ThrowableToProblemDetailsKernelListener;
-use RuntimeException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Throwable;
 
 /**
  *
@@ -44,8 +43,9 @@ class ThrowableToProblemDetailsKernelListenerTest extends TestCase
         $event = new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $throwable);
 
         $listener = new ThrowableToProblemDetailsKernelListener(
-            new ProblemDetailsFactory(),
-            $environment
+            [
+                new GenericThrowableConverter(new ProblemDetailsFactory(), $environment),
+            ]
         );
 
         // Act
