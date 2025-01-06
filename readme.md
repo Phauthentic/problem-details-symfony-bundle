@@ -59,6 +59,11 @@ Content-Language: en
           ]
 }
 ```
+## Alternatives
+
+If you favor a different style of implementation check out the following bundles:
+
+* [phpro/api-problem-bundle](https://github.com/phpro/api-problem-bundle)
 
 ## License
 
