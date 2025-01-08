@@ -6,7 +6,7 @@ namespace Phauthentic\Symfony\ProblemDetails\Tests\Unit;
 
 use Exception;
 use InvalidArgumentException;
-use Phauthentic\Symfony\ProblemDetails\ExceptionConversion\GenericThrowableConverter;
+use Phauthentic\Symfony\ProblemDetails\ExceptionConversion\GenericExceptionConverter;
 use Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -45,7 +45,7 @@ class ThrowableToProblemDetailsKernelListenerTest extends TestCase
 
         $listener = new ThrowableToProblemDetailsKernelListener(
             [
-                new GenericThrowableConverter(new ProblemDetailsFactory(), $environment),
+                new GenericExceptionConverter(new ProblemDetailsFactory(), $environment),
             ]
         );
 

@@ -29,7 +29,7 @@ class ThrowableToProblemDetailsKernelListener
      * @param array<ExceptionConverterInterface> $exceptionConverters
      */
     public function __construct(
-        protected array $exceptionConverters = []
+        protected iterable $exceptionConverters = []
     ) {
         if (empty($this->exceptionConverters)) {
             throw new InvalidArgumentException('At least one converter must be provided');

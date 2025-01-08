@@ -12,16 +12,21 @@ services:
     arguments:
       $validationErrorsBuilder: '@Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder'
       $problemDetailsResponseFactory: '@Phauthentic\Symfony\ProblemDetails\FromExceptionEventFactoryInterface'
+    tags:
+      - { name: 'exception.converter' }
 
   Phauthentic\Symfony\ProblemDetails\ExceptionConversion\HttpExceptionConverter:
     arguments:
       $problemDetailsFactory: '@Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactoryInterface'
+    tags:
+      - { name: 'exception.converter' }
 
-  Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ThrowableToProblemDetailsKernelListener:
+  Phauthentic\Symfony\ProblemDetails\ExceptionConversion\GenericExceptionConverter:
+    tags:
+      - { name: 'exception.converter' }
+
+  Phauthentic\Symfony\ProblemDetails\ThrowableToProblemDetailsKernelListener:
     arguments:
-      $exceptionConverters:
-        - '@Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ValidationFailedExceptionConverter'
-        - '@Phauthentic\Symfony\ProblemDetails\ExceptionConversion\HttpExceptionConverter'
-        - '@Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ThrowableToProblemDetailsKernelListener'
+      $exceptionConverters: !tagged_iterator exception.converter
     tags:
       - { name: 'kernel.event_listener', event: 'kernel.exception', priority: 0 }
