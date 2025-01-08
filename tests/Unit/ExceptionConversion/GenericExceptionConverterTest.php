@@ -18,7 +18,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  *
  */
-class GenericThrowableConverterTest extends TestCase
+class GenericExceptionConverterTest extends TestCase
 {
     public function setUp(): void
     {
