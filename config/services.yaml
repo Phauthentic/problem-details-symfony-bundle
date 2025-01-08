@@ -22,6 +22,6 @@ services:
       $exceptionConverters:
         - '@Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ValidationFailedExceptionConverter'
         - '@Phauthentic\Symfony\ProblemDetails\ExceptionConversion\HttpExceptionConverter'
-        - '@Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ThrowableToProblemDetailsKernelListener'
+        - '@Phauthentic\Symfony\ProblemDetails\ExceptionConversion\GenericThrowableConverter'
     tags:
       - { name: 'kernel.event_listener', event: 'kernel.exception', priority: 0 }
