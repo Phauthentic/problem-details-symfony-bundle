@@ -1,6 +1,6 @@
 {
     "name": "phauthentic/problem-details-symfony-bundle",
-    "type": "library",
+    "type": "symfony-bundle",
     "description": "Symfony bundle for the Problem Details for HTTP APIs RFC",
     "require": {
         "php": "^8.2",
