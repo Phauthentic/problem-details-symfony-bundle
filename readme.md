@@ -12,7 +12,9 @@ This bundle provides support for [RFC 9457](https://www.rfc-editor.org/rfc/rfc94
 composer require phauthentic/problem-details-symfony-bundle
 ```
 
-## Docs
+## Documentation
+
+Simply inject the `ProblemDetailsFactoryInterface` into your handlers and use it to create `ProblemDetails` responses.
 
 ```php
 class ExampleController
@@ -36,6 +38,31 @@ class ExampleController
     }
 }
 ```
+
+### Service Configuration
+
+To add more converters to the kernel listener, you can tag additional services with `phauthentic.problem_details.exception_converter`. They must implement the [ExceptionConverterInterface](src/ExceptionConversion/ExceptionConverterInterface.php).
+
+```yaml
+  Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ValidationFailedExceptionConverter:
+    arguments:
+      $validationErrorsBuilder: '@Phauthentic\Symfony\ProblemDetails\Validation\ValidationErrorsBuilder'
+      $problemDetailsResponseFactory: '@Phauthentic\Symfony\ProblemDetails\FromExceptionEventFactoryInterface'
+    tags: ['phauthentic.problem_details.exception_converter']
+```
+
+To completely override the list of already configured listeners override
+
+```yaml
+  Phauthentic\Symfony\ProblemDetails\ThrowableToProblemDetailsKernelListener:
+    public: true
+    arguments:
+      $exceptionConverters: !tagged_iterator phauthentic.problem_details.exception_converter
+    tags:
+      - { name: 'kernel.event_listener', event: 'kernel.exception', priority: 0 }
+```
+
+in your `services.yaml`.
 
 ## Problem Details Example
 

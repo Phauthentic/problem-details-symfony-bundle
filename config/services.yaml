@@ -20,9 +20,12 @@ services:
     tags: ['phauthentic.problem_details.exception_converter']
 
   Phauthentic\Symfony\ProblemDetails\ExceptionConversion\GenericExceptionConverter:
+    arguments:
+      $problemDetailsFactory: '@Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactoryInterface'
     tags: ['phauthentic.problem_details.exception_converter']
 
   Phauthentic\Symfony\ProblemDetails\ThrowableToProblemDetailsKernelListener:
+    public: true
     arguments:
       $exceptionConverters: !tagged_iterator phauthentic.problem_details.exception_converter
     tags:

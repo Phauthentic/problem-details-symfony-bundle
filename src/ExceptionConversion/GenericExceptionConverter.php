@@ -15,13 +15,6 @@ use Throwable;
  * Notice that you might need to adjust the priority of the listener in your services.yaml file to make sure it is
  * executed in the right order if you have other listeners.
  *
- * <code>
- * Phauthentic\Symfony\ProblemDetails\ThrowableToProblemDetailsKernelListener:
- *      arguments: ['%kernel.environment%', { }]
- *      tags:
- *          - { name: kernel.event_listener, event: kernel.exception, priority: -20 }
- * </code>
- *
  * @link https://www.rfc-editor.org/rfc/rfc9457.html
  */
 class GenericExceptionConverter implements ExceptionConverterInterface

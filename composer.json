@@ -14,7 +14,8 @@
         "phpmd/phpmd": "^2.5",
         "phpstan/phpstan": "^2.0",
         "phpunit/phpunit": "^11.5.0",
-        "squizlabs/php_codesniffer": "^3.7.2"
+        "squizlabs/php_codesniffer": "^3.7.2",
+        "symfony/yaml": "^7.2"
     },
     "license": "MIT",
     "autoload": {
