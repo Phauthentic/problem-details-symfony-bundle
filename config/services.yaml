@@ -17,7 +17,7 @@ services:
     arguments:
       $problemDetailsFactory: '@Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactoryInterface'
 
-  Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ThrowableToProblemDetailsKernelListener:
+  Phauthentic\Symfony\ProblemDetails\ThrowableToProblemDetailsKernelListener:
     arguments:
       $exceptionConverters:
         - '@Phauthentic\Symfony\ProblemDetails\ExceptionConversion\ValidationFailedExceptionConverter'
