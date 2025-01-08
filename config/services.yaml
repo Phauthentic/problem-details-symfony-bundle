@@ -27,6 +27,6 @@ services:
 
   Phauthentic\Symfony\ProblemDetails\ThrowableToProblemDetailsKernelListener:
     arguments:
-      $exceptionConverters: !tagged_iterator phauthentic.problem_details.exception_converter'
+      $exceptionConverters: !tagged_iterator phauthentic.problem_details.exception_converter
     tags:
       - { name: 'kernel.event_listener', event: 'kernel.exception', priority: 0 }
