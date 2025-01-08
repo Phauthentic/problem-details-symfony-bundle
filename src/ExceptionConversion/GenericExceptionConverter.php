@@ -24,7 +24,7 @@ use Throwable;
  *
  * @link https://www.rfc-editor.org/rfc/rfc9457.html
  */
-class GenericThrowableConverter implements ExceptionConverterInterface
+class GenericExceptionConverter implements ExceptionConverterInterface
 {
     /**
      * @param ProblemDetailsFactoryInterface $problemDetailsFactory

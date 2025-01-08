@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phauthentic\Symfony\ProblemDetails\Tests\Unit\ExceptionConversion;
 
 use Exception;
-use Phauthentic\Symfony\ProblemDetails\ExceptionConversion\GenericThrowableConverter;
+use Phauthentic\Symfony\ProblemDetails\ExceptionConversion\GenericExceptionConverter;
 use Phauthentic\Symfony\ProblemDetails\ExceptionConversion\HttpExceptionConverter;
 use Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactory;
 use Phauthentic\Symfony\ProblemDetails\ProblemDetailsResponse;
@@ -24,7 +24,7 @@ class GenericThrowableConverterTest extends TestCase
     {
         parent::setUp();
 
-        $this->converter = new GenericThrowableConverter(
+        $this->converter = new GenericExceptionConverter(
             problemDetailsFactory: new ProblemDetailsFactory()
         );
     }
