@@ -25,7 +25,8 @@ class GenericExceptionConverterTest extends TestCase
         parent::setUp();
 
         $this->converter = new GenericExceptionConverter(
-            problemDetailsFactory: new ProblemDetailsFactory()
+            problemDetailsFactory: new ProblemDetailsFactory(),
+            environment: 'prod'
         );
     }
 

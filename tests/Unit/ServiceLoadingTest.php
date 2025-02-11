@@ -25,6 +25,7 @@ class ServiceLoadingTest extends TestCase
         $container = new ContainerBuilder();
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
         $loader->load('services.yaml');
+        $container->setParameter('kernel.environment', 'prod');
         $container->compile();
 
         // Assert

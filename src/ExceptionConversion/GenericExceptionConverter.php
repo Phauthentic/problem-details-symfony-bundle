@@ -26,7 +26,7 @@ class GenericExceptionConverter implements ExceptionConverterInterface
      */
     public function __construct(
         protected ProblemDetailsFactoryInterface $problemDetailsFactory,
-        protected string $environment = 'prod',
+        protected string $environment,
         protected array $mappers = []
     ) {
     }
