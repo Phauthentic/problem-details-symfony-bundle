@@ -22,6 +22,7 @@ services:
   Phauthentic\Symfony\ProblemDetails\ExceptionConversion\GenericExceptionConverter:
     arguments:
       $problemDetailsFactory: '@Phauthentic\Symfony\ProblemDetails\ProblemDetailsFactoryInterface'
+      $environment: '%kernel.environment%'
     tags: ['phauthentic.problem_details.exception_converter']
 
   Phauthentic\Symfony\ProblemDetails\ThrowableToProblemDetailsKernelListener:
