@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phauthentic\Symfony\ProblemDetails;
 
 use InvalidArgumentException;
-use LogicException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
@@ -61,9 +60,9 @@ class ProblemDetailsResponse extends JsonResponse
         }
 
         return new self(
-            array_merge($data, $extensions),
-            $status,
-            [
+            data: array_merge($data, $extensions),
+            status: $status,
+            headers: [
                 'Content-Type' => self::$contentType
             ]
         );
@@ -90,7 +89,7 @@ class ProblemDetailsResponse extends JsonResponse
     protected static function assertValidStatusCode(int $statusCode): void
     {
         if (!($statusCode >= 400 && $statusCode < 500) && !($statusCode >= 500 && $statusCode < 600)) {
-            throw new LogicException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Invalid status code %s provided for a Problem Details response. '
                 . 'Status code must be a client (4xx) or server error (5xx) status code.',
                 $statusCode
