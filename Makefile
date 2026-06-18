@@ -9,26 +9,32 @@ help:
 	@echo "  - all:                Runs CS-Fixer, CS-Checker, Static Analyser and Tests"
 	@echo "  - shell:              Run shell"
 
-run-tests:
+ensure-up:
+	@docker compose ps php --status running | grep -q php || docker compose up -d php
+
+install: ensure-up
+	docker compose exec php composer install --no-interaction
+
+run-tests: install
 	@echo "Running tests"
-	docker compose run --rm --no-deps php composer test
+	docker compose exec php composer test
 
-run-infection:
+run-infection: ensure-up
 	@echo "Running infection mutation testing"
-	docker compose run --rm --no-deps php composer infection
+	docker compose exec php composer infection
 
-coverage-text:
+coverage-text: ensure-up
 	@echo "Running coverage text"
-	docker compose run --rm --no-deps php composer test-coverage
+	docker compose exec php composer test-coverage
 
-coverage-html:
+coverage-html: ensure-up
 	@echo "Running coverage HTML"
-	docker compose run --rm --no-deps php composer test-coverage-html
+	docker compose exec php composer test-coverage-html
 
-all:
+all: ensure-up
 	@echo "Running CS-Checker, Static Analyser and Tests"
-	docker compose run --rm --no-deps -T php composer all
+	docker compose exec -T php composer all
 
-shell:
+shell: ensure-up
 	@echo "Running shell"
-	docker compose run --rm --no-deps --service-ports --entrypoint /bin/bash php
+	docker compose exec php /bin/bash
